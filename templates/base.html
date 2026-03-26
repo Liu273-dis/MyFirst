@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav {
+            background-color: #444;
+            padding: 0.5rem;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav li {
+            margin: 0 1rem;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .post {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .post h2 {
+            margin-top: 0;
+        }
+        .post-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        /* 确认对话框样式 */
+        .confirm-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .confirm-dialog-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .confirm-dialog-buttons {
+            margin-top: 1.5rem;
+        }
+        .confirm-dialog-button {
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .confirm-dialog-confirm {
+            background-color: #f44336;
+            color: white;
+        }
+        .confirm-dialog-cancel {
+            background-color: #9e9e9e;
+            color: white;
+        }
+    </style>
+    <script>
+        let currentPostId = null;
+        
+        function showDeleteConfirm(postId) {
+            currentPostId = postId;
+            document.getElementById('confirmDialog').style.display = 'flex';
+        }
+        
+        function hideDeleteConfirm() {
+            document.getElementById('confirmDialog').style.display = 'none';
+            currentPostId = null;
+        }
+        
+        function confirmDelete() {
+            if (currentPostId) {
+                fetch('/post/' + currentPostId + '/delete', {
+                    method: 'POST'
+                }).then(function() {
+                    window.location.href = '/';
+                });
+            }
+            hideDeleteConfirm();
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>我的个人博客</h1>
+    </header>
+    <nav style="display: flex; justify-content: space-between; align-items: center;">
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex;">
+            <li style="margin: 0 1rem;"><a href="{{ url_for('home') }}">首页</a></li>
+            {% if logged_in %}
+                <li style="margin: 0 1rem;"><a href="{{ url_for('new_post') }}">创建文章</a></li>
+            {% endif %}
+            <li style="margin: 0 1rem;"><a href="{{ url_for('about') }}">关于</a></li>
+        </ul>
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex;">
+            {% if logged_in %}
+                <li style="margin: 0 1rem;"><a href="{{ url_for('logout_route') }}">注销 ({{ username }})</a></li>
+            {% else %}
+                <li style="margin: 0 1rem;"><a href="{{ url_for('login_route') }}">登录</a></li>
+                <li style="margin: 0 1rem;"><a href="{{ url_for('register_route') }}">注册</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 我的个人博客</p>
+    </footer>
+    
+    <!-- 确认对话框 -->
+    <div id="confirmDialog" class="confirm-dialog">
+        <div class="confirm-dialog-content">
+            <h3>确认删除</h3>
+            <p>确定要删除这篇文章吗？</p>
+            <div class="confirm-dialog-buttons">
+                <button class="confirm-dialog-button confirm-dialog-cancel" onclick="hideDeleteConfirm()">取消</button>
+                <button class="confirm-dialog-button confirm-dialog-confirm" onclick="confirmDelete()">确认删除</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

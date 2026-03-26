@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}创建文章 - 我的个人博客{% endblock %}
+
+{% block content %}
+    <h2>创建新文章</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="title">标题</label>
+            <input type="text" id="title" name="title" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">
+        </div>
+        <div class="form-group">
+            <label for="author">作者</label>
+            <input type="text" id="author" name="author" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">
+        </div>
+        <div class="form-group">
+            <label for="content">内容</label>
+            <textarea id="content" name="content" rows="10" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;"></textarea>
+        </div>
+        <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer;">发布文章</button>
+        <a href="{{ url_for('home') }}" style="display: inline-block; margin-left: 10px; background-color: #f44336; color: white; padding: 10px 15px; border: none; text-decoration: none;">取消</a>
+    </form>
+{% endblock %}
