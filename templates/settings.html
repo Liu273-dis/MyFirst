@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}设置 - 我的个人博客{% endblock %}
+
+{% block content %}
+    <h2>设置</h2>
+    
+    {% if success %}
+        <div class="notification notification-success">
+            API密钥保存成功！
+        </div>
+    {% endif %}
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="api_key">OpenAI API密钥</label>
+            <input type="password" id="api_key" name="api_key" value="{{ api_key }}" required>
+            <small class="form-text text-muted">
+                你可以在 <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI官网</a> 获取API密钥
+            </small>
+        </div>
+        <button type="submit" class="btn btn-primary">保存设置</button>
+    </form>
+{% endblock %}
+
+{% block style %}
+    <style>
+        .form-text {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+    </style>
+{% endblock %}

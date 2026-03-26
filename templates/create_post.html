@@ -4,20 +4,131 @@
 
 {% block content %}
     <h2>创建新文章</h2>
+    
+    <!-- AI内容生成工具 -->
+    <div class="ai-tool">
+        <h3>智能内容生成</h3>
+        <div class="form-group">
+            <label for="ai-prompt">提示词</label>
+            <input type="text" id="ai-prompt" placeholder="输入文章主题或关键词">
+        </div>
+        <div class="form-group">
+            <label>生成类型</label>
+            <select id="ai-content-type">
+                <option value="article">完整文章</option>
+                <option value="title">文章标题</option>
+                <option value="summary">内容摘要</option>
+            </select>
+        </div>
+        <button id="generate-btn" class="btn btn-secondary">生成内容</button>
+        <div id="ai-result" style="margin-top: 1rem; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 4px; display: none;">
+            <h4>生成结果</h4>
+            <div id="ai-content"></div>
+            <button id="use-content-btn" class="btn btn-primary" style="margin-top: 1rem;">使用此内容</button>
+        </div>
+    </div>
+    
     <form method="POST">
         <div class="form-group">
             <label for="title">标题</label>
-            <input type="text" id="title" name="title" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">
+            <input type="text" id="title" name="title" required>
         </div>
         <div class="form-group">
             <label for="author">作者</label>
-            <input type="text" id="author" name="author" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">
+            <input type="text" id="author" name="author" required>
         </div>
         <div class="form-group">
             <label for="content">内容</label>
-            <textarea id="content" name="content" rows="10" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;"></textarea>
+            <textarea id="content" name="content" rows="10" required></textarea>
         </div>
-        <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer;">发布文章</button>
-        <a href="{{ url_for('home') }}" style="display: inline-block; margin-left: 10px; background-color: #f44336; color: white; padding: 10px 15px; border: none; text-decoration: none;">取消</a>
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">发布文章</button>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">取消</a>
+        </div>
     </form>
+{% endblock %}
+
+{% block style %}
+    <style>
+        .ai-tool {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+    </style>
+{% endblock %}
+
+{% block script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate-btn');
+            const aiResult = document.getElementById('ai-result');
+            const aiContent = document.getElementById('ai-content');
+            const useContentBtn = document.getElementById('use-content-btn');
+            const aiPrompt = document.getElementById('ai-prompt');
+            const aiContentType = document.getElementById('ai-content-type');
+            const titleInput = document.getElementById('title');
+            const contentInput = document.getElementById('content');
+            
+            generateBtn.addEventListener('click', async function() {
+                const prompt = aiPrompt.value.trim();
+                const contentType = aiContentType.value;
+                
+                if (!prompt) {
+                    alert('请输入提示词');
+                    return;
+                }
+                
+                generateBtn.textContent = '生成中...';
+                generateBtn.disabled = true;
+                
+                try {
+                    const response = await fetch('/ai/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            prompt: prompt,
+                            content_type: contentType
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        aiContent.textContent = data.content;
+                        aiResult.style.display = 'block';
+                    }
+                } catch (error) {
+                    alert('生成内容时出错，请重试');
+                } finally {
+                    generateBtn.textContent = '生成内容';
+                    generateBtn.disabled = false;
+                }
+            });
+            
+            useContentBtn.addEventListener('click', function() {
+                const contentType = aiContentType.value;
+                const generatedContent = aiContent.textContent;
+                
+                if (contentType === 'title') {
+                    // 提取第一个标题
+                    const firstTitle = generatedContent.split('\n')[0].replace(/^\d+\.\s*/, '');
+                    titleInput.value = firstTitle;
+                } else if (contentType === 'article') {
+                    contentInput.value = generatedContent;
+                } else {
+                    // 可以将摘要添加到内容开头
+                    contentInput.value = generatedContent + '\n\n' + contentInput.value;
+                }
+                
+                aiResult.style.display = 'none';
+            });
+        });
+    </script>
 {% endblock %}

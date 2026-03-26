@@ -6,13 +6,135 @@
     {% if post %}
         <h2>{{ post.title }}</h2>
         <p class="post-meta">作者: {{ post.author }} | 发布日期: {{ post.date_posted }}</p>
-        <p>{{ post.content }}</p>
-        <a href="{{ url_for('home') }}">返回首页</a>
-        <a href="{{ url_for('edit_post', post_id=post.id) }}" style="margin-left: 10px; color: blue;">编辑</a>
-        <button type="button" onclick="showDeleteConfirm({{ post.id }})" style="background: none; border: none; color: red; cursor: pointer; padding: 0; margin-left: 10px;">删除</button>
+        <div class="post-content">
+            {{ post.content }}
+        </div>
+        <div class="post-actions">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">返回首页</a>
+            <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-primary">编辑</a>
+            <button type="button" onclick="showDeleteConfirm({{ post.id }})" class="btn btn-danger">删除</button>
+        </div>
+        
+        <!-- Vue 评论组件 -->
+        <div class="comments-section">
+            {% raw %}
+            <div id="commentsApp">
+                <h3>评论</h3>
+                
+                <!-- 评论列表 -->
+                <div v-if="comments.length > 0" style="margin-bottom: 20px;">
+                    <transition-group name="slide-up" tag="div">
+                        <div v-for="comment in comments" :key="comment.id" class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">{{ comment.author }}</span>
+                                <span class="comment-date">{{ comment.date_posted }}</span>
+                            </div>
+                            <div class="comment-content">
+                                {{ comment.content }}
+                            </div>
+                        </div>
+                    </transition-group>
+                </div>
+                <div v-else>
+                    <p>还没有评论，快来发表第一条评论吧！</p>
+                </div>
+                
+                <!-- 评论表单 -->
+                <div v-if="loggedIn">
+                    <h4>发表评论</h4>
+                    <form @submit.prevent="submitComment">
+                        <div class="form-group">
+                            <label for="content">评论内容：</label>
+                            <textarea id="content" v-model="newComment.content" rows="4" cols="60" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" :disabled="submitting">
+                            <span v-if="submitting">提交中...</span>
+                            <span v-else>提交评论</span>
+                        </button>
+                    </form>
+                </div>
+                <div v-else>
+                    <p>请 <a href="/login">登录</a> 后发表评论</p>
+                </div>
+                
+                <!-- 通知 -->
+                <div v-if="message" :class="['notification', message.type]">
+                    {{ message.text }}
+                </div>
+            </div>
+            {% endraw %}
+        </div>
+        
+        <script>
+            const { createApp, ref, reactive, onMounted } = Vue;
+            
+            createApp({
+                setup() {
+                    // 响应式数据
+                    const comments = ref({{ comments|tojson|safe }});
+                    const newComment = reactive({
+                        content: ''
+                    });
+                    const submitting = ref(false);
+                    const message = ref(null);
+                    const loggedIn = ref({{ logged_in|lower }});
+                    
+                    // 提交评论
+                    const submitComment = async () => {
+                        if (!newComment.content.trim()) return;
+                        
+                        submitting.value = true;
+                        
+                        try {
+                            const response = await fetch('{{ url_for('add_comment', post_id=post.id) }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                                body: new URLSearchParams({
+                                    content: newComment.content
+                                })
+                            });
+                            
+                            if (response.ok) {
+                                // 重新加载页面以显示新评论
+                                window.location.reload();
+                            } else {
+                                message.value = {
+                                    type: 'notification-error',
+                                    text: '提交评论失败，请重试'
+                                };
+                                setTimeout(() => {
+                                    message.value = null;
+                                }, 3000);
+                            }
+                        } catch (error) {
+                            message.value = {
+                                type: 'notification-error',
+                                text: '网络错误，请重试'
+                            };
+                            setTimeout(() => {
+                                message.value = null;
+                            }, 3000);
+                        } finally {
+                            submitting.value = false;
+                        }
+                    };
+                    
+                    return {
+                        comments,
+                        newComment,
+                        submitting,
+                        message,
+                        loggedIn,
+                        submitComment
+                    };
+                }
+            }).mount('#commentsApp');
+        </script>
     {% else %}
         <h2>文章不存在</h2>
         <p>抱歉，找不到您请求的文章。</p>
-        <a href="{{ url_for('home') }}">返回首页</a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">返回首页</a>
     {% endif %}
 {% endblock %}

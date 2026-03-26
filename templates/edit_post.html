@@ -7,17 +7,19 @@
     <form method="POST">
         <div class="form-group">
             <label for="title">标题</label>
-            <input type="text" id="title" name="title" value="{{ post.title }}" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">
+            <input type="text" id="title" name="title" value="{{ post.title }}" required>
         </div>
         <div class="form-group">
             <label for="author">作者</label>
-            <input type="text" id="author" name="author" value="{{ post.author }}" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">
+            <input type="text" id="author" name="author" value="{{ post.author }}" required>
         </div>
         <div class="form-group">
             <label for="content">内容</label>
-            <textarea id="content" name="content" rows="10" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">{{ post.content }}</textarea>
+            <textarea id="content" name="content" rows="10" required>{{ post.content }}</textarea>
         </div>
-        <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer;">更新文章</button>
-        <a href="{{ url_for('post', post_id=post.id) }}" style="display: inline-block; margin-left: 10px; background-color: #f44336; color: white; padding: 10px 15px; border: none; text-decoration: none;">取消</a>
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">更新文章</button>
+            <a href="{{ url_for('post', post_id=post.id) }}" class="btn btn-secondary">取消</a>
+        </div>
     </form>
 {% endblock %}

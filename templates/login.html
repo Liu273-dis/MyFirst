@@ -3,20 +3,53 @@
 {% block title %}登录 - 我的个人博客{% endblock %}
 
 {% block content %}
-    <h2>登录</h2>
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-    <form method="POST">
-        <div class="form-group">
-            <label for="username">用户名</label>
-            <input type="text" id="username" name="username" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">
-        </div>
-        <div class="form-group">
-            <label for="password">密码</label>
-            <input type="password" id="password" name="password" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd;">
-        </div>
-        <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer;">登录</button>
-        <p style="margin-top: 10px;">还没有账号？ <a href="{{ url_for('register_route') }}">注册</a></p>
-    </form>
+    <div class="login-container">
+        <h2>登录</h2>
+        {% if error %}
+            <div class="notification notification-error">
+                {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">登录</button>
+            <p style="margin-top: 1rem;">还没有账号？ <a href="{{ url_for('register_route') }}">注册</a></p>
+        </form>
+    </div>
+{% endblock %}
+
+{% block style %}
+    <style>
+        .login-container {
+            max-width: 350px;
+            margin: 0 auto;
+        }
+        
+        .login-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .login-container .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .login-container .form-group input {
+            padding: 0.6rem;
+            font-size: 0.9rem;
+        }
+        
+        .login-container button {
+            width: 100%;
+            padding: 0.6rem;
+            font-size: 0.9rem;
+        }
+    </style>
 {% endblock %}

@@ -3,15 +3,21 @@
 {% block title %}首页 - 我的个人博客{% endblock %}
 
 {% block content %}
-    <h2>博客文章</h2>
-    {% for post in posts %}
-        <div class="post">
-            <h3><a href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h3>
-            <p class="post-meta">作者: {{ post.author }} | 发布日期: {{ post.date_posted }}</p>
-            <p>{{ post.content[:100] }}...</p>
-            <a href="{{ url_for('post', post_id=post.id) }}">阅读更多</a>
-            <a href="{{ url_for('edit_post', post_id=post.id) }}" style="margin-left: 10px; color: blue;">编辑</a>
-            <button type="button" onclick="showDeleteConfirm({{ post.id }})" style="background: none; border: none; color: red; cursor: pointer; padding: 0; margin-left: 10px;">删除</button>
-        </div>
-    {% endfor %}
+    <div class="scrollable-content">
+        <h2>博客文章</h2>
+        {% for post in posts %}
+            <div class="post">
+                <h3><a href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h3>
+                <p class="post-meta">作者: {{ post.author }} | 发布日期: {{ post.date_posted }}</p>
+                <div class="post-content">
+                    {{ post.content[:100] }}...
+                </div>
+                <div class="post-actions">
+                    <a href="{{ url_for('post', post_id=post.id) }}" class="btn btn-secondary">阅读更多</a>
+                    <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-primary">编辑</a>
+                    <button type="button" onclick="showDeleteConfirm({{ post.id }})" class="btn btn-danger">删除</button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
